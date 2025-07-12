@@ -26,13 +26,14 @@ export default function createProxyRouter(
       const methodName = req.params[1]; // 第二个捕获组是 methodName
       const requestBody = req.body; // 获取请求体
 
-      // 验证方法名是否是 generateContent 或 streamGenerateContent
-      if (methodName !== 'generateContent' && methodName !== 'streamGenerateContent') {
+      // 验证方法名是否是支持的 API 方法
+      const supportedMethods = ['generateContent', 'streamGenerateContent', 'countTokens'];
+      if (!supportedMethods.includes(methodName)) {
          console.warn(`ProxyRoute: 不支持的 API 方法: ${methodName}`);
          res.status(400).json({
             error: {
                code: 400,
-               message: `Bad Request: Unsupported API method "${methodName}". Only "generateContent" and "streamGenerateContent" are supported.`,
+               message: `Bad Request: Unsupported API method "${methodName}". Supported methods: ${supportedMethods.join(', ')}.`,
                status: 'INVALID_ARGUMENT',
             },
          });

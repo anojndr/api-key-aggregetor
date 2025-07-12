@@ -1,86 +1,20 @@
 {
   "name": "api-key-aggregetor",
   "displayName": "Gemini API Key Aggregator Proxy",
-  "description": "Aggregates multiple Google Gemini API keys to bypass rate limits and improve concurrency for VS Code extensions like Cline and Roo Code.",
+  "description": "Standalone proxy server that aggregates multiple Google Gemini API keys to bypass rate limits and improve concurrency.",
   "version": "0.0.2",
-  "publisher": "ShaneYang",
-  "engines": {
-    "vscode": "^1.97.0"
-  },
-  "categories": [
-    "Other",
-    "Programming Languages",
-    "AI"
-  ],
-  "keywords": [
-    "Gemini",
-    "API Key",
-    "Aggregator",
-    "Proxy",
-    "Cline",
-    "Roo Code",
-    "Continue",
-    "Rate Limit",
-    "Concurrency"
-  ],
-  "activationEvents": [
-    "onCommand:geminiAggregator.runserver",
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "geminiAggregator.runserver",
-        "title": "Run Server"
-      },
-      {
-        "command": "geminiAggregator.addApiKey",
-        "title": "Gemini: Add API Key"
-      },
-      {
-        "command": "geminiAggregator.listApiKeys",
-        "title": "Gemini: List API Keys"
-      },
-      {
-        "command": "geminiAggregator.modifyApiKey",
-        "title": "Gemini: Modify API Key"
-      },
-      {
-        "command": "geminiAggregator.deleteApiKey",
-        "title": "Gemini: Delete API Key"
-      }
-    ],
-    "configuration": {
-      "title": "Gemini API Key Aggregator Configuration",
-      "properties": {
-        "geminiAggregator.port": {
-          "type": "number",
-          "default": 3145,
-          "description": "Port to be used by the proxy server."
-        }
-      }
-    
-    }
-  },
 
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "build": "tsc -p ./",
+    "start": "node out/server.js",
+    "dev": "tsc -watch -p ./",
+    "lint": "eslint src"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
-    "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "@types/vscode": "^1.97.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.23.0",
     "typescript": "^5.8.2"
   },

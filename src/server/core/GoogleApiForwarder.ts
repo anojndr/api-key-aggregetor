@@ -35,6 +35,11 @@ class GoogleApiForwarder {
         result = await generativeModel.generateContentStream(requestBody);
         console.info(`GoogleApiForwarder: 转发流式请求到模型 ${modelId} 使用 Key ${apiKey.key}`);
         return { stream: result.stream };
+      } else if (methodName === 'countTokens') {
+        // 处理 countTokens 请求
+        result = await generativeModel.countTokens(requestBody);
+        console.info(`GoogleApiForwarder: 转发 countTokens 请求到模型 ${modelId} 使用 Key ${apiKey.key}`);
+        return { response: result };
       } else {
         // 理论上这部分代码不会被执行，因为 ProxyRoute 已经做了方法名验证
         // 但作为防御性编程，保留此处的错误处理
