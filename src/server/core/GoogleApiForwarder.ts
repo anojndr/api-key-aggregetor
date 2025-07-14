@@ -71,6 +71,67 @@ class GoogleApiForwarder {
       return { error: googleApiError };
     }
   }
+
+  async forwardOpenAIRequest(path: string, requestBody: any, apiKey: ApiKey, method: string = 'POST'): Promise<{ response?: any, stream?: any, error?: GoogleApiError }> {
+    const baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai';
+    const cleanPath = path.startsWith('/v1/') ? path.substring(3) : path;
+    const url = `${baseUrl}${cleanPath}`;
+    
+    try {
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${apiKey.key}`,
+        'Content-Type': 'application/json',
+      };
+
+      const fetchOptions: any = {
+        method,
+        headers,
+      };
+
+      if (method !== 'GET' && requestBody) {
+        fetchOptions.body = JSON.stringify(requestBody);
+      }
+
+      console.info(`GoogleApiForwarder: 转发 OpenAI 兼容请求到 ${path} 使用 Key ${apiKey.key}`);
+      
+      const response = await fetch(url, fetchOptions);
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        const isRateLimit = response.status === 429;
+        
+        const googleApiError = new GoogleApiError(
+          `OpenAI Compatible API Error: ${response.status} ${response.statusText} - ${errorBody}`,
+          response.status,
+          apiKey.key,
+          isRateLimit
+        );
+        
+        return { error: googleApiError };
+      }
+
+      if (requestBody?.stream) {
+        console.info(`GoogleApiForwarder: 处理 OpenAI 兼容流式响应 (${apiKey.key})`);
+        return { stream: response.body };
+      } else {
+        const responseData = await response.json();
+        console.info(`GoogleApiForwarder: 处理 OpenAI 兼容非流式响应 (${apiKey.key})`);
+        return { response: responseData };
+      }
+      
+    } catch (error: any) {
+      console.error(`GoogleApiForwarder: 调用 OpenAI 兼容 API 时发生错误 (${apiKey.key}):`, JSON.stringify(error));
+      
+      const googleApiError = new GoogleApiError(
+        `OpenAI Compatible API Error: ${error.message}`,
+        error.statusCode || 500,
+        apiKey.key,
+        false
+      );
+      
+      return { error: googleApiError };
+    }
+  }
 }
 
 export default GoogleApiForwarder;

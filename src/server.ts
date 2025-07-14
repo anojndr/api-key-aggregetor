@@ -3,6 +3,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import config from './server/config';
 import createProxyRouter from './server/routes/proxy';
+import createOpenAIRouter from './server/routes/openai';
 import errorHandler from './server/middlewares/errorHandler';
 import ApiKeyManager from './server/core/ApiKeyManager';
 import RequestDispatcher from './server/core/RequestDispatcher';
@@ -35,9 +36,11 @@ const streamHandler = new StreamHandler();
 const requestDispatcher = new RequestDispatcher(apiKeyManager);
 
 const proxyRouter = createProxyRouter(apiKeyManager, requestDispatcher, googleApiForwarder, streamHandler);
+const openaiRouter = createOpenAIRouter(apiKeyManager, requestDispatcher, googleApiForwarder);
 
 app.use(express.json({ limit: '8mb' }));
 app.use('/', proxyRouter);
+app.use('/', openaiRouter);
 app.use(errorHandler);
 
 const server = http.createServer(app);
@@ -45,6 +48,9 @@ const server = http.createServer(app);
 server.listen(port, () => {
   console.log(`Gemini API Key Aggregator Proxy Server running on port ${port}`);
   console.log(`Using ${apiKeys.length} API keys for load balancing`);
+  console.log(`Supporting both Gemini API and OpenAI-compatible endpoints`);
+  console.log(`  Gemini API: /v1beta/models/{model}:{method}`);
+  console.log(`  OpenAI API: /v1/chat/completions, /v1/embeddings, /v1/models, /v1/images/generations`);
 }).on('error', (err: any) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`Port ${port} is already in use. Please stop the existing server or change the port.`);
